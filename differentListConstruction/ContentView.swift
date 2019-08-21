@@ -27,14 +27,10 @@ struct ContentView: View {
     
     
     
-  func move(testData: [TestData], set: IndexSet, to: Int) {
+  func move(testData: TestData, set: IndexSet, to: Int) {
     
     print("xxl index set count on move is\(set.first!), count is \(set.count) and to is: \(to)")
-        for item in testData {
 //            mygroups.move(fromOffsets: set, toOffset: to)
-        item.displayOrder = 1
-        }
-//        allProjects.sort{$0.displayOrder > $1.displayOrder}
     }
     
     
@@ -48,9 +44,12 @@ struct ContentView: View {
             
             List {
                 ForEach(mygroups, id: \.title) { (gr: TestData) in
+                    
                     Section(header: Text(gr.title)) {
                         ForEach(gr.items, id: \.self) { item in
-                                    Text(item)
+                                    RowView(contents: item)
+//                            RowView()
+
                         }.onMove{self.move(testData: self.mygroups, set: $0, to: $1)}
                             .onDelete{indexSet in print(indexSet)}
                             
@@ -66,10 +65,14 @@ struct ContentView: View {
 
 
 struct RowView: View {
-    var contents: TestData
+//    var contents: TestData
+    var contents: GenericStruct
+
 
     var body: some View {
-        return Text(contents.title)
+//        return Text(contents.title)
+        return Text("Bill")
+
     }
 }
 
@@ -78,3 +81,9 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
+struct GenericStruct {
+    let title = "generic struct"
+}
+
+let data = [GenericStruct(), GenericStruct(), GenericStruct()]
