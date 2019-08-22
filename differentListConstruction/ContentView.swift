@@ -7,9 +7,22 @@
 //
 
 import SwiftUI
+import Foundation
 
 
-class TestData {
+class TestData: Equatable, Hashable {
+    
+    
+    static func ==(lhs: TestData, rhs: TestData) -> Bool {
+        return lhs.title == rhs.title
+    }
+    
+   func hash(into hasher: inout Hasher) {
+        hasher.combine(title)
+        hasher.combine(displayOrder)
+    }
+
+    
     
     let title: String
     let items: [String]
@@ -27,13 +40,13 @@ struct ContentView: View {
     
     
     
-  func move(testData: TestData, set: IndexSet, to: Int) {
+  func move(testData: [GenericStruct], set: IndexSet, to: Int) {
     
     print("xxl index set count on move is\(set.first!), count is \(set.count) and to is: \(to)")
 //            mygroups.move(fromOffsets: set, toOffset: to)
     }
     
-    
+    var mod = genericStructModel
     var mygroups = [
         TestData( "Numbers",  ["1","2","3"], 0),
         TestData( "Letters",  ["A","B","C"], 0),
@@ -43,14 +56,20 @@ struct ContentView: View {
         NavigationView {
             
             List {
-                ForEach(mygroups, id: \.title) { (gr: TestData) in
-                    
-                    Section(header: Text(gr.title)) {
-                        ForEach(gr.items, id: \.self) { item in
-                                    RowView(contents: item)
+//                ForEach(mygroups, id: \.title) { (gr: TestData) in
+                ForEach(mygroups, id: \.self) { (td: TestData) in
+
+                    Section(header: Text(td.title)) {
+                        ForEach(td.items, id: \.self) { item in
+                        
+//                            RowView(contents:  TestData("b", ["a"], 0))
+                            RowView(contents: item)
+
+                            //                            RowView(contents: item)
+
 //                            RowView()
 
-                        }.onMove{self.move(testData: self.mygroups, set: $0, to: $1)}
+                        }.onMove{self.move(testData: self.mod, set: $0, to: $1)}
                             .onDelete{indexSet in print(indexSet)}
                             
                     }
@@ -65,13 +84,16 @@ struct ContentView: View {
 
 
 struct RowView: View {
-//    var contents: TestData
-    var contents: GenericStruct
+    var contents: String
+//    var contents: Int
+//    var contents: SimpleClass
+
 
 
     var body: some View {
-//        return Text(contents.title)
-        return Text("Bill")
+//        return Text(String(contents))
+//        return Text("Bill")
+        return Text(contents)
 
     }
 }
@@ -82,8 +104,16 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-struct GenericStruct {
-    let title = "generic struct"
-}
 
-let data = [GenericStruct(), GenericStruct(), GenericStruct()]
+
+
+struct GenericStruct: Identifiable {
+    let id = UUID()
+let title = "generic struct"
+    let array = [1,2,3]
+}
+let genericStructModel = [GenericStruct(), GenericStruct(), GenericStruct()]
+
+class SimpleClass{
+    let simpleClassName = "simpleClass"
+}
