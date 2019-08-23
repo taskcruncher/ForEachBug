@@ -63,6 +63,24 @@ class Project: Hashable, Equatable {
 
 
 class AppData: ObservableObject {
+    
+    func move(project: Project, set: IndexSet, to: Int) {
+        
+    //    let arr = testData.fil
+        
+        print("xxl index set count on move is\(set.first!), count is \(set.count) and to is: \(to)")
+    //            mygroups.move(fromOffsets: set, toOffset: to)
+        }
+    
+    
+    func delete(projects: [Project]) {
+        for p in projects {
+            self.projects.removeAll{$0 == p}
+            print("tty deleted \(p)")
+        }
+    }
+    
+    
     func folders() -> [Folder] {
         Array(Set(projects.map{$0.folder}))
     }
@@ -106,13 +124,7 @@ struct ContentView: View {
     
     @ObservedObject var appData: AppData
     
-  func move(testData: AppData, set: IndexSet, to: Int) {
-    
-//    let arr = testData.fil
-    
-    print("xxl index set count on move is\(set.first!), count is \(set.count) and to is: \(to)")
-//            mygroups.move(fromOffsets: set, toOffset: to)
-    }
+
     
     
     func sectionProjects(folder: Folder) -> [Project] {
@@ -140,8 +152,7 @@ struct ContentView: View {
 
 //                            RowView()
 
-                        }.onMove{self.move(testData: self.appData, set: $0, to: $1)}
-                            .onDelete{indexSet in print(indexSet)}
+                        }
                             
                     }
                 }
@@ -169,6 +180,24 @@ struct RowView: View {
     }
 }
 
+
+struct FolderView: View {
+    var folder: Folder
+   @ObservedObject var vm: AppData
+    
+    func projects(for folder: Folder) -> [Project] {
+        return self.vm.projects.filter{ $0.folder == folder}
+    }
+    
+    var body: some View {
+        let localProjects: [Project] = self.projects(for: folder)
+        
+        return ForEach(localProjects, id: \.self) { (project: Project) in
+            Text(project.title.uppercased())
+        }.onDelete{self.vm.delete(projects: $0.map{localProjects[$0]})}
+    }
+
+}
 //struct ContentView_Previews: PreviewProvider {
 //    static var previews: some View {
 //        ContentView()
