@@ -10,30 +10,7 @@ import SwiftUI
 import Foundation
 
 
-class TestData: Equatable, Hashable {
-    
-    
-    static func ==(lhs: TestData, rhs: TestData) -> Bool {
-        return lhs.title == rhs.title
-    }
-    
-   func hash(into hasher: inout Hasher) {
-        hasher.combine(title)
-        hasher.combine(displayOrder)
-    }
 
-    
-    
-    let title: String
-    let items: [String]
-    var displayOrder: Int
-    
-    init(_ title: String, _ items: [String], _ displayOrder: Int) {
-        self.title = title
-        self.items = items
-        self.displayOrder = displayOrder
-    }
-}
 
 
 class Folder: Hashable, Equatable {
@@ -137,16 +114,13 @@ struct ContentView: View {
 //            mygroups.move(fromOffsets: set, toOffset: to)
     }
     
-    var mod = genericStructModel
     
     func sectionProjects(folder: Folder) -> [Project] {
         appData.projects.filter{$0.folder == folder}
     }
     
-    var mygroups = [
-        TestData( "Numbers",  ["1","2","3"], 0),
-        TestData( "Letters",  ["A","B","C"], 0),
-        TestData( "Symbols",  ["€","%","&"], 0)]
+ 
+    
     var body: some View {
         
         NavigationView {
@@ -204,13 +178,3 @@ struct RowView: View {
 
 
 
-struct GenericStruct: Identifiable {
-    let id = UUID()
-let title = "generic struct"
-    let array = [1,2,3]
-}
-let genericStructModel = [GenericStruct(), GenericStruct(), GenericStruct()]
-
-class SimpleClass{
-    let simpleClassName = "simpleClass"
-}
