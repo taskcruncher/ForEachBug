@@ -59,6 +59,8 @@ class AppData: ObservableObject {
 struct ContentView: View {
     
     @EnvironmentObject var vm: AppData
+    @State private var editMode: EditMode = .inactive // Add an EditMode variable
+
     
     var body: some View {
         
@@ -67,17 +69,23 @@ struct ContentView: View {
             List {
                 ForEach(vm.folderSource) { (folder: Folder)   in
                     return Section(header: Text(folder.title)) {
-                        FolderView(folder: folder)
+                        FolderView(folder: folder,onDelete: {
+                            self.editMode = .inactive // quickly change edit mode off
+                            self.editMode = .active   // and back on
+                        })
                     }
                 }
             }.listStyle(GroupedListStyle())
                 .navigationBarItems(trailing: EditButton())
+            .environment(\.editMode, self.$editMode) // bind the List editMode to your variable
+
         }
     }
 }
 
 struct FolderView: View {
     var folder: Folder
+    let onDelete: () -> ()
     @EnvironmentObject var vm: AppData
     
     
