@@ -77,7 +77,7 @@ struct ContentView: View {
                 }
             }.listStyle(GroupedListStyle())
                 .navigationBarItems(trailing: EditButton())
-            .environment(\.editMode, self.$editMode) // bind the List editMode to your variable
+//            .environment(\.editMode, self.$editMode) // bind the List editMode to your variable
 
         }
     }
@@ -86,6 +86,7 @@ struct ContentView: View {
 struct FolderView: View {
     var folder: Folder
     let onDelete: () -> ()
+
     @EnvironmentObject var vm: AppData
     
     
