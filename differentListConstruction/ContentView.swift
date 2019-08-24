@@ -8,202 +8,159 @@
 
 import SwiftUI
 import Foundation
-
-
-
-
-
-class Folder: Hashable, Equatable {
-    static func == (lhs: Folder, rhs: Folder) -> Bool {
-        lhs.title == rhs.title
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(title)
-    }
-    
-    
-    
-    var title: String
-    var displayOrder: Int
-
-     init(title: String, displayOrder: Int) {
-        self.title = title
-        self.displayOrder = displayOrder
-    }
-}
-
-class Project: Hashable, Equatable {
-    static func == (lhs: Project, rhs: Project) -> Bool {
-        lhs.title == rhs.title
-        
-    }
-    
-    
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(title)
-    }
-    
-    
-    
-    var title: String
-    var displayOrder: Int
-    var folder: Folder
-
-     init(title: String, displayOrder: Int, folder: Folder) {
-        self.title = title
-        self.displayOrder = displayOrder
-        self.folder = folder
-    }
-    
-  
-}
-
-
+import Combine
 
 class AppData: ObservableObject {
     
-    func move(project: Project, set: IndexSet, to: Int) {
-        
-    //    let arr = testData.fil
-        
-        print("xxl index set count on move is\(set.first!), count is \(set.count) and to is: \(to)")
-    //            mygroups.move(fromOffsets: set, toOffset: to)
-        }
+//    var objectWillChange = PassthroughSubject<Void, Never>()
+    let objectWillChange = ObservableObjectPublisher()
     
-    
-    func delete(projects: [Project]) {
-        for p in projects {
-            self.projects.removeAll{$0 == p}
-            print("tty deleted \(p)")
+    let folderSource: [Folder]
+    @Published var projects: [Project] {
+        willSet {
+            objectWillChange.send()
         }
     }
     
-    
-    func folders() -> [Folder] {
-        Array(Set(projects.map{$0.folder}))
-    }
+    init() {
+        let folders = [Folder(title: "folder1", displayOrder: 0), Folder(title: "folder2", displayOrder: 1), Folder(title: "folder3", displayOrder: 2)  ]
         
-    
-    var projects: [Project] = {
-        var folderSource = [Folder(title: "folder1", displayOrder: 0), Folder(title: "folder2", displayOrder: 1), Folder(title: "folder3", displayOrder: 2)  ]
-        
-        
-        var tempArray = [Project]()
-        tempArray.append(Project(title: "project 0", displayOrder: 0, folder: folderSource[0]  ))
-            tempArray.append(Project(title: "project 1", displayOrder: 1, folder: folderSource[0]  ))
-                tempArray.append(Project(title: "project 2", displayOrder: 1, folder: folderSource[0]  ))
-        
-        
-        tempArray.append(Project(title: "project 3", displayOrder: 0, folder: folderSource[1]  ))
-                  tempArray.append(Project(title: "project 4", displayOrder: 1, folder: folderSource[1]  ))
-                      tempArray.append(Project(title: "project 5", displayOrder: 1, folder: folderSource[1]  ))
-        
-        
-               tempArray.append(Project(title: "project 6", displayOrder: 0, folder: folderSource[2]  ))
-                         tempArray.append(Project(title: "project 7", displayOrder: 1, folder: folderSource[2]  ))
-                             tempArray.append(Project(title: "project 8", displayOrder: 1, folder: folderSource[2]  ))
-
-
-      
-        return tempArray
+        self.folderSource = folders
+        self.projects = {
+            
+            var tempArray = [Project]()
+            tempArray.append(Project(title: "project 0", displayOrder: 0, folder: folders[0]  ))
+            tempArray.append(Project(title: "project 1", displayOrder: 1, folder: folders[0]  ))
+            tempArray.append(Project(title: "project 2", displayOrder: 2, folder: folders[0]  ))
+            
+            
+            tempArray.append(Project(title: "project 3", displayOrder: 0, folder: folders[1]  ))
+            tempArray.append(Project(title: "project 4", displayOrder: 1, folder: folders[1]  ))
+            tempArray.append(Project(title: "project 5", displayOrder: 2, folder: folders[1]  ))
+            
+            
+            tempArray.append(Project(title: "project 6", displayOrder: 0, folder: folders[2]  ))
+            tempArray.append(Project(title: "project 7", displayOrder: 1, folder: folders[2]  ))
+            tempArray.append(Project(title: "project 8", displayOrder: 2, folder: folders[2]  ))
+            
+            return tempArray
         }()
+        
+    }
     
     
-    
-    
-    
+    func delete() {
+        //dumbed-down static delete call to try to find ui bug
+        self.projects.remove(at: 0)
+        //
+    }
 }
-
-
-
 
 struct ContentView: View {
     
-    
-    @ObservedObject var appData: AppData
-    
-
-    
-    
-    func sectionProjects(folder: Folder) -> [Project] {
-        appData.projects.filter{$0.folder == folder}
-    }
-    
- 
+    @EnvironmentObject var vm: AppData
     
     var body: some View {
         
         NavigationView {
             
             List {
-//                ForEach(mygroups, id: \.title) { (gr: TestData) in
-                ForEach(appData.folders(), id: \.self) { (fold: Folder) in
-
-                    Section(header: Text(fold.title)) {
-                        ForEach(self.sectionProjects(folder: fold) , id: \.self) { proj in
-                            
-                        
-//                            RowView(contents:  TestData("b", ["a"], 0))
-                            RowView(project: proj)
-
-                            //                            RowView(contents: item)
-
-//                            RowView()
-
-                        }
-                            
+                ForEach(vm.folderSource) { (folder: Folder)   in
+                    return Section(header: Text(folder.title)) {
+                        FolderView(folder: folder)
                     }
                 }
             }.listStyle(GroupedListStyle())
                 .navigationBarItems(trailing: EditButton())
-
         }
-        
     }
 }
-
-
-struct RowView: View {
-    var project: Project
-//    var contents: Int
-//    var contents: SimpleClass
-
-
-
-    var body: some View {
-//        return Text(String(contents))
-//        return Text("Bill")
-        return Text(project.title)
-
-    }
-}
-
 
 struct FolderView: View {
     var folder: Folder
-   @ObservedObject var vm: AppData
+    @EnvironmentObject var vm: AppData
     
-    func projects(for folder: Folder) -> [Project] {
-        return self.vm.projects.filter{ $0.folder == folder}
-    }
     
     var body: some View {
-        let localProjects: [Project] = self.projects(for: folder)
+        let associatedProjects = vm.projects.filter{$0.folder == folder}
         
-        return ForEach(localProjects, id: \.self) { (project: Project) in
+        return ForEach(associatedProjects) { (project: Project) in
             Text(project.title.uppercased())
-        }.onDelete{self.vm.delete(projects: $0.map{localProjects[$0]})}
+        }.onDelete{index in self.vm.delete()}
+    }
+}
+
+
+class Folder: Hashable, Equatable, Identifiable{
+    
+    let id = UUID()
+    let title: String
+    let displayOrder: Int
+    
+    
+    init(title: String, displayOrder: Int) {
+        self.title = title
+        self.displayOrder = displayOrder
+    }
+    
+    //make Equatable
+    static func == (lhs: Folder, rhs: Folder) -> Bool {
+        lhs.id == rhs.id
     }
 
+    //make Hashable
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView()
-//    }
+
+
+
+class Project: Hashable, Equatable, Identifiable {
+    
+    let id = UUID()
+    let title: String
+    let displayOrder: Int
+    let folder: Folder
+    
+    init(title: String, displayOrder: Int, folder: Folder) {
+        self.title = title
+        self.displayOrder = displayOrder
+        self.folder = folder
+    }
+    
+    static func == (lhs: Project, rhs: Project) -> Bool {
+        lhs.id == rhs.id
+        
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+}
+
+
+
+//}.onDelete{self.vm.delete(projects: $0.map{associatedProjects[$0
+//    ]})}
+//    .onMove{ self.vm.move(projects: associatedProjects, set: $0, to: $1)}
 //}
 
 
+//    func delete(projects: [Project]) {
+//
+//        self.projects.remove(at: 0)
+////        for p in projects {
+////            self.projects.removeAll{$0 == p}
+////        }
+//    }
+//
+//.onMove{ self.vm.move(projects: associatedProjects, set: $0, to: $1)}
 
 
+//func move(projects: [Project], set: IndexSet, to: Int) {
+//
+//     //        print("xxl index set count on move is\(set.first!), count is \(set.count) and to is: \(to)")
+//     //            mygroups.move(fromOffsets: set, toOffset: to)
+// }
