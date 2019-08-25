@@ -49,6 +49,17 @@ class AppData: ObservableObject {
     }
     
     
+    
+    func delete(projects: [Project]) {
+        for p in projects {
+            print("lskdf")
+        }
+    }
+    func move(projects: [Project], set: IndexSet, to: Int) {
+
+    }
+    
+    
     func delete() {
         //dumbed-down static delete call to try to find ui bug
         self.projects.remove(at: 0)
@@ -59,37 +70,65 @@ class AppData: ObservableObject {
 struct ContentView: View {
     
     @EnvironmentObject var vm: AppData
-//    @State private var editMode: EditMode = .inactive // Add an EditMode variable
-    @State private var unusedArg: Int = 5 // Add an EditMode variable
+    @State private var editMode: EditMode = .inactive // Add an EditMode variable
 
     
-    var body: some View {
-        
-        NavigationView {
-            
-            List {
-                ForEach(vm.folderSource) { (folder: Folder)   in
-                    return Section(header: Text(folder.title)) {
-                        FolderView(folder: folder,onDelete: {
-//                            print("bug")
-//                        FolderView(folder: folder, unusedArg: 5)
+//    var body: some View {
+//
+//        NavigationView {
+//
+//            List {
+//                ForEach(vm.folderSource) { (folder: Folder)   in
+//                    return Section(header: Text(folder.title)) {
+//                        FolderView(folder: folder,onDelete: {
+////                            print("bug")
+////                        FolderView(folder: folder, unusedArg: 5)
+//                            if self.editMode == .active {
 //                            self.editMode = .inactive // quickly change edit mode off
-                            self.unusedArg = 0   // and back on
-                        }, unusedArg: 5)
+//
+//                            self.editMode = .active // quickly change edit mode off
+//                            }
+//                        })
+//                    }
+//                }
+//            }.listStyle(GroupedListStyle())
+//                .navigationBarItems(trailing: EditButton())
+//            .environment(\.editMode, self.$editMode) // bind the List editMode to your variable
+//
+//        }
+//    }
+    
+     var body: some View {
+
+            NavigationView {
+
+                List {
+                    ForEach(vm.folderSource) { (folder: Folder)   in
+                        Section(header: Text(folder.title)) {
+    //                        FolderView(folder: folder)
+                            ForEach(self.vm.projects.filter{$0.folder == folder}) { (project: Project) in
+                                Text(project.title.uppercased())
+                            }.onDelete{index in
+                                self.vm.delete()
+                            }
+                            .onMove(perform: {(index, int) in print("sdf")})
+                        }
                     }
                 }
-            }.listStyle(GroupedListStyle())
+                .listStyle(GroupedListStyle())
                 .navigationBarItems(trailing: EditButton())
-//            .environment(\.editMode, self.$editMode) // bind the List editMode to your variable
-
+            }
         }
-    }
+    
+    
+    
+    
+    
 }
 
 struct FolderView: View {
     var folder: Folder
     let onDelete: () -> ()
-    let unusedArg: Int
 
     @EnvironmentObject var vm: AppData
     
@@ -99,7 +138,10 @@ struct FolderView: View {
         
         return ForEach(associatedProjects) { (project: Project) in
             Text(project.title.uppercased())
-        }.onDelete{index in self.vm.delete()}
+        }.onDelete{
+            self.vm.delete(projects: $0.map{
+                return associatedProjects[$0]
+            })}
     }
 }
 
