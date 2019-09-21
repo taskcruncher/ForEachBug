@@ -73,52 +73,52 @@ struct ContentView: View {
     @State private var editMode: EditMode = .inactive // Add an EditMode variable
 
     
-    var body: some View {
-
-        NavigationView {
-
-            List {
-                ForEach(vm.folderSource) { (folder: Folder)   in
-                    return Section(header: Text(folder.title)) {
-                        FolderView(folder: folder,onDelete: {
-//                            print("bug")
-//                        FolderView(folder: folder, unusedArg: 5)
-                            if self.editMode == .active {
-                            self.editMode = .inactive // quickly change edit mode off
-
-                            self.editMode = .active // quickly change edit mode off
-                            }
-                        })
-                    }
-                }
-            }.listStyle(GroupedListStyle())
-                .navigationBarItems(trailing: EditButton())
-            .environment(\.editMode, self.$editMode) // bind the List editMode to your variable
-
-        }
-    }
-    
-//     var body: some View {
+//    var body: some View {
 //
-//            NavigationView {
+//        NavigationView {
 //
-//                List {
-//                    ForEach(vm.folderSource) { (folder: Folder)   in
-//                        Section(header: Text(folder.title)) {
-//    //                        FolderView(folder: folder)
-//                            ForEach(self.vm.projects.filter{$0.folder == folder}) { (project: Project) in
-//                                Text(project.title.uppercased())
-//                            }.onDelete{index in
-//                                self.vm.delete()
+//            List {
+//                ForEach(vm.folderSource) { (folder: Folder)   in
+//                    return Section(header: Text(folder.title)) {
+//                        FolderView(folder: folder,onDelete: {
+////                            print("bug")
+////                        FolderView(folder: folder, unusedArg: 5)
+//                            if self.editMode == .active {
+//                            self.editMode = .inactive // quickly change edit mode off
+//
+//                            self.editMode = .active // quickly change edit mode off
 //                            }
-//                            .onMove(perform: {(index, int) in print("sdf")})
-//                        }
+//                        })
 //                    }
 //                }
-//                .listStyle(GroupedListStyle())
+//            }.listStyle(GroupedListStyle())
 //                .navigationBarItems(trailing: EditButton())
-//            }
+//            .environment(\.editMode, self.$editMode) // bind the List editMode to your variable
+//
 //        }
+//    }
+    
+    var body: some View {
+        
+        NavigationView {
+            
+            List {
+                ForEach(vm.folderSource) { (folder: Folder)   in
+                    Section(header: Text(folder.title)) {
+                        //                        FolderView(folder: folder)
+                        ForEach(self.vm.projects.filter{$0.folder == folder}) { (project: Project) in
+                            Text(project.title.uppercased())
+                        }.onDelete{index in
+                            self.vm.delete()
+                        }
+                        .onMove(perform: {(index, int) in print("sdf")})
+                    }
+                }
+            }
+            .listStyle(GroupedListStyle())
+            .navigationBarItems(trailing: EditButton())
+        }
+    }
 //
     
     
